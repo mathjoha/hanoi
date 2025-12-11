@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Towers of Hanoi - Three.js</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <header class="top-bar">
+            <h1>Towers of Hanoi</h1>
+        </header>
+
+        <div id="game-container">
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <aside id="control-panel" class="control-panel">
+            <button id="dismiss-panel" class="btn-close">&times;</button>
+            <div class="control-section">
+                <h3>Difficulty</h3>
+                <select id="difficulty-selector">
+                    <option value="3">Easy (3 disks)</option>
+                    <option value="4">Medium (4 disks)</option>
+                    <option value="5" selected>Normal (5 disks)</option>
+                    <option value="6">Hard (6 disks)</option>
+                    <option value="7">Expert (7 disks)</option>
+                </select>
+            </div>
+
+            <div class="control-section">
+                <h3>Controls</h3>
+                <button id="reset-button" class="btn btn-primary">Reset Game</button>
+            </div>
+
+            <div class="control-section instructions">
+                <h3>How to Play</h3>
+                <ul>
+                    <li>Drag disks from one tower to another</li>
+                    <li>Only move one disk at a time</li>
+                    <li>Never place a larger disk on a smaller one</li>
+                    <li>Move all disks to the rightmost tower to win</li>
+                </ul>
+            </div>
+        </aside>
+        <button id="show-panel" class="btn-show hidden">&#9776;</button>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
