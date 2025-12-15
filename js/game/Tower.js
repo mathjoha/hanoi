@@ -104,8 +104,12 @@ export class Tower {
     }
 
     canAcceptDisk(disk) {
-        if (this.disks.length === 0) return true;
+        if (this.disks.length === 0) {
+            console.log('Tower', this.index, 'is empty, can accept disk', disk.getSize());
+            return true;
+        }
         const topDisk = this.getTopDisk();
+        console.log('Tower', this.index, 'top disk size:', topDisk.getSize(), 'trying to place disk size:', disk.getSize(), 'can accept:', disk.getSize() < topDisk.getSize());
         return disk.getSize() < topDisk.getSize();
     }
 

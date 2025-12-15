@@ -7,10 +7,15 @@ export class UIController {
             resetButton: document.getElementById('reset-button'),
             controlPanel: document.getElementById('control-panel'),
             dismissButton: document.getElementById('dismiss-panel'),
-            showButton: document.getElementById('show-panel')
+            showButton: document.getElementById('show-panel'),
+            winModal: document.getElementById('win-modal'),
+            closeModal: document.getElementById('close-modal'),
+            movesCount: document.getElementById('moves-count'),
+            optimalCount: document.getElementById('optimal-count')
         };
 
         this.setupEventListeners();
+        this.setupGameListeners();
     }
 
     setupEventListeners() {
@@ -32,5 +37,25 @@ export class UIController {
             this.elements.controlPanel.classList.remove('hidden');
             this.elements.showButton.classList.add('hidden');
         });
+
+        this.elements.closeModal.addEventListener('click', () => {
+            this.elements.winModal.classList.add('hidden');
+            this.gameState.reset();
+        });
+    }
+
+    setupGameListeners() {
+        console.log('Setting up game listeners in UIController');
+        this.gameState.on('gameComplete', (data) => {
+            console.log('UIController received gameComplete event:', data);
+            this.showWinModal(data);
+        });
+    }
+
+    showWinModal(data) {
+        console.log('Showing win modal with data:', data);
+        this.elements.movesCount.textContent = data.moves;
+        this.elements.optimalCount.textContent = data.optimal;
+        this.elements.winModal.classList.remove('hidden');
     }
 }

@@ -50,6 +50,13 @@ export class GameState {
             const disk = new Disk(i, count, this.towers, this.disks);
             this.disks.push(disk);
             this.sceneManager.addToScene(disk.getMesh());
+
+            // Set up callback for when disk is placed via physics
+            disk.setOnDiskPlaced(() => {
+                this.moveCount++;
+                this.emit('moveCountChanged', this.moveCount);
+                this.checkWinCondition();
+            });
         }
 
         for (let i = 0; i < this.disks.length; i++) {
@@ -57,6 +64,7 @@ export class GameState {
             const y = 0.4 + i * 0.4;
             const towerPos = this.towers[0].getPosition();
             disk.setPosition(towerPos.x, y, towerPos.z);
+            this.towers[0].addDisk(disk);
         }
 
         this.moveCount = 0;
@@ -99,14 +107,21 @@ export class GameState {
     checkWinCondition() {
         const targetTower = this.towers[2];
 
+        console.log('Checking win condition...');
+        console.log('Target tower disk count:', targetTower.getDiskCount());
+        console.log('Total disk count:', this.diskCount);
+
         if (targetTower.getDiskCount() === this.diskCount) {
             const disksInOrder = targetTower.disks.every((disk, index, arr) => {
                 if (index === 0) return true;
                 return disk.getSize() < arr[index - 1].getSize();
             });
 
+            console.log('Disks in order:', disksInOrder);
+
             if (disksInOrder) {
                 this.isComplete = true;
+                console.log('Game complete! Emitting event...');
                 this.emit('gameComplete', {
                     moves: this.moveCount,
                     optimal: this.getOptimalMoves()

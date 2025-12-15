@@ -178,6 +178,7 @@ export class Disk {
             newPos.copy(this.mesh.position);
             this.velocity.set(0, 0, 0);
             this.isPhysicsEnabled = false;
+            this.onPhysicsSettled();
         }
 
         const diskCollision = this.checkDiskCollision(newPos);
@@ -192,10 +193,60 @@ export class Disk {
 
         if (Math.abs(this.velocity.y) < 0.01 && Math.abs(this.velocity.x) < 0.01 && Math.abs(this.velocity.z) < 0.01) {
             this.velocity.set(0, 0, 0);
-            if (newPos.y - this.height / 2 <= tableHeight + 0.01) {
+            // Check if resting on table
+            const onTable = newPos.y - this.height / 2 <= tableHeight + 0.01;
+            // Check if resting on another disk
+            const onDisk = this.checkDiskCollision(newPos) !== null;
+
+            if (onTable || onDisk) {
                 this.isPhysicsEnabled = false;
+                this.onPhysicsSettled();
             }
         }
+    }
+
+    onPhysicsSettled() {
+        console.log('Disk physics settled, size:', this.size);
+        // Find which tower this disk is on
+        const pos = this.mesh.position;
+        let closestTower = null;
+        let minDistance = Infinity;
+
+        for (const tower of this.towers) {
+            const towerPos = tower.getPosition();
+            const distance = Math.sqrt(
+                Math.pow(pos.x - towerPos.x, 2) +
+                Math.pow(pos.z - towerPos.z, 2)
+            );
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestTower = tower;
+            }
+        }
+
+        console.log('Closest tower:', closestTower ? closestTower.getIndex() : 'none', 'Distance:', minDistance);
+
+        // If disk is close enough to a tower, add it
+        if (closestTower && minDistance < 1.5) {
+            // Only add if not already on this tower and if it's a legal move
+            const alreadyOnTower = closestTower.hasDisk(this);
+            const canAccept = closestTower.canAcceptDisk(this);
+            console.log('Already on tower:', alreadyOnTower, 'Can accept:', canAccept);
+
+            if (!alreadyOnTower && canAccept) {
+                console.log('Adding disk to tower', closestTower.getIndex());
+                closestTower.addDisk(this);
+                if (this.onDiskPlaced) {
+                    console.log('Calling onDiskPlaced callback');
+                    this.onDiskPlaced();
+                }
+            }
+        }
+    }
+
+    setOnDiskPlaced(callback) {
+        this.onDiskPlaced = callback;
     }
 
     checkDiskCollision(newPos) {
@@ -208,10 +259,19 @@ export class Disk {
                 Math.pow(newPos.z - otherPos.z, 2)
             );
 
+            // Check if disks overlap in XZ plane
             if (distanceXZ < this.radius + otherDisk.radius) {
-                const verticalDistance = Math.abs(newPos.y - otherPos.y);
-                if (verticalDistance < this.height) {
-                    const topY = otherPos.y + otherDisk.height / 2 + this.height / 2;
+                // Calculate vertical bounds
+                const thisBottom = newPos.y - this.height / 2;
+                const thisTop = newPos.y + this.height / 2;
+                const otherBottom = otherPos.y - otherDisk.height / 2;
+                const otherTop = otherPos.y + otherDisk.height / 2;
+
+                // Check if this disk is falling onto the other disk
+                // (this disk's bottom is at or below the other disk's top)
+                if (thisBottom <= otherTop && thisTop >= otherBottom) {
+                    // Position this disk on top of the other disk
+                    const topY = otherTop + this.height / 2;
                     return { y: topY, disk: otherDisk };
                 }
             }
@@ -231,9 +291,6 @@ export class Disk {
                 Math.pow(newPos.x - towerPos.x, 2) +
                 Math.pow(newPos.z - towerPos.z, 2)
             );
-
-            const poleEdgeDistance = distanceXZ - this.poleRadius;
-            const holeEdgeDistance = this.holeRadius;
 
             if (distanceXZ > this.radius + this.poleRadius) {
                 continue;

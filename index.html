@@ -45,6 +45,18 @@
             </div>
         </aside>
         <button id="show-panel" class="btn-show hidden">&#9776;</button>
+
+        <div id="win-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Congratulations!</h2>
+                <p>You solved the puzzle!</p>
+                <div id="win-stats">
+                    <p>Moves: <span id="moves-count">0</span></p>
+                    <p>Optimal: <span id="optimal-count">0</span></p>
+                </div>
+                <button id="close-modal" class="btn btn-primary">Play Again</button>
+            </div>
+        </div>
     </div>
 
     <script type="importmap">
