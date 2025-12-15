@@ -14,7 +14,7 @@ export class Disk {
         this.gravity = -20;
         this.towers = towers;
         this.allDisks = allDisks;
-        this.holeRadius = 0.22;
+        this.holeRadius = 0.80;
         this.poleRadius = 0.15;
         this.minRadius = 0.75;
         this.maxRadius = 2.5;
